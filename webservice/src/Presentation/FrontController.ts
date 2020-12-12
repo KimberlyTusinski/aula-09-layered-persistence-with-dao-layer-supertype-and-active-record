@@ -11,7 +11,7 @@ const NULL_COMMAND = {
 }
 
 export class FrontController {
-
+  private _cors: boolean = false
   private routing: Record<string, Record<string, Command>> = {}
 
   // registrar os comandos
@@ -25,6 +25,11 @@ export class FrontController {
     // pathname = '/usuarios'
     if (url.pathname && this.routing[url.pathname]) {
       if (req.method && this.routing[url.pathname][req.method]) {
+
+        if (this._cors) {
+          this.cors(resp)
+        }
+
         const command = this.routing[url.pathname][req.method]
         try {
           command.execute(req, resp)
@@ -42,6 +47,16 @@ export class FrontController {
     }
   }
 
+  useCors() {
+    this._cors = ! this._cors
+  }
+
+  private cors(resp: ServerResponse) {
+    resp.setHeader('Access-Control-Allow-Origin', '*');
+    resp.setHeader('Access-Control-Request-Method', '*');
+    resp.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    resp.setHeader('Access-Control-Allow-Headers', '*');
+  }
 }
 
 export enum Method {
